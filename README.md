@@ -179,6 +179,16 @@ The tuned XGBoost model slightly improved fraud recall, meaning it detected more
 
 ---
 
+# Model Interpretation
+
+Although XGBoost is generally considered a more advanced machine learning algorithm, Logistic Regression slightly outperformed XGBoost in this project. This suggests that the engineered fraud features, including transaction velocity, risk scores, and behavioral indicators, created strong linear separation between fraudulent and legitimate transactions.
+
+Consequently, the simpler Logistic Regression model was able to generalize effectively while minimizing false positives. The findings demonstrate that simpler models can outperform more complex ensemble methods when the dataset contains highly informative and well-structured predictive features.
+
+The tuned XGBoost model slightly improved fraud recall, meaning it detected more fraudulent transactions, but this improvement came at the expense of reduced precision and increased false positives. This highlights the trade-off between maximizing fraud detection sensitivity and minimizing disruption to legitimate customer transactions.
+
+---
+
 # Key Insights
 
 1. **Transaction velocity is the strongest fraud indicator**
