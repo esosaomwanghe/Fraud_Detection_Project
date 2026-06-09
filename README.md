@@ -124,17 +124,17 @@ The following machine learning models were implemented and evaluated for fraud d
 
 | Metric | Score |
 |---|---|
-| Accuracy | 98.61% |
-| Precision | 0.9895 |
-| Recall | 0.8670 |
-| F1-Score | 0.9242 |
-| ROC-AUC | 0.9601 |
+| Accuracy | 95.83% |
+| Precision | 0.7413 |
+| Recall | 0.8807 |
+| F1-Score | 0.8050 |
+| ROC-AUC | 0.9562 |
 
 ### Discussion
 
-The Logistic Regression model achieved the best overall performance among all evaluated models. The model maintained extremely high accuracy and precision while achieving strong fraud recall capability. The ROC-AUC score of 0.960 demonstrates excellent ability to distinguish between fraudulent and legitimate transactions.
+The Logistic Regression model achieved strong fraud detection capability with the highest recall score alongside Tuned XGBoost. This indicates that the model was highly effective at identifying fraudulent transactions. However, the lower precision score suggests that the model generated a higher number of false positive alerts compared to the XGBoost-based models.
 
-The strong performance suggests that the engineered fraud indicators created highly separable fraud patterns, allowing the simpler linear model to generalize effectively while minimizing false positives.
+Despite being a simpler linear model, Logistic Regression demonstrated excellent separability between fraudulent and legitimate transactions due to the strength of the engineered behavioral and risk-based fraud features.
 
 ---
 
@@ -142,17 +142,17 @@ The strong performance suggests that the engineered fraud indicators created hig
 
 | Metric | Score |
 |---|---|
-| Accuracy | 98.43% |
-| Precision | 0.9692 |
+| Accuracy | 98.34% |
+| Precision | 0.9594 |
 | Recall | 0.8670 |
-| F1-Score | 0.9153 |
-| ROC-AUC | 0.9472 |
+| F1-Score | 0.9108 |
+| ROC-AUC | 0.9549 |
 
 ### Discussion
 
-The XGBoost model achieved performance very close to Logistic Regression while offering improved capability for learning nonlinear fraud patterns and feature interactions. Although its ROC-AUC score was slightly lower than Logistic Regression, the model still demonstrated strong fraud classification capability.
+The XGBoost model achieved excellent classification performance with very high precision and accuracy. The model effectively captured nonlinear relationships and interactions among transaction behavior, device intelligence, and risk indicators.
 
-Feature importance analysis revealed that transaction velocity, internal risk scores, IP risk indicators, and account age were the most influential fraud predictors.
+Compared to Logistic Regression, XGBoost significantly reduced false positive alerts while maintaining strong fraud detection capability. This makes the model operationally efficient for large-scale fraud monitoring systems.
 
 ---
 
@@ -160,17 +160,19 @@ Feature importance analysis revealed that transaction velocity, internal risk sc
 
 | Metric | Score |
 |---|---|
-| Accuracy | 96.86% |
-| Precision | 0.8136 |
-| Recall | 0.8807 |
-| F1-Score | 0.8458 |
-| ROC-AUC | 0.9533 |
+| Accuracy | 98.65% |
+| Precision | 0.9947 |
+| Recall | 0.8670 |
+| F1-Score | 0.9265 |
+| ROC-AUC | 0.9583 |
 
 ### Discussion
 
-The tuned XGBoost model achieved the highest fraud recall score among all models, meaning it detected the largest proportion of fraudulent transactions. This makes it valuable in high-risk fraud monitoring environments where missing fraudulent activity is more costly than generating false alerts.
+The Tuned XGBoost model achieved the best overall performance among all evaluated models. It produced the highest accuracy, precision, F1-score, and ROC-AUC score while maintaining strong fraud recall capability.
 
-However, the improvement in recall came at the expense of lower precision and overall accuracy, leading to a higher number of false positives. This demonstrates the typical trade-off between fraud sensitivity and operational efficiency.
+The extremely high precision score demonstrates that the model generated very few false positive alerts, making it highly suitable for real-world fraud monitoring environments where unnecessary transaction blocking can negatively affect customer experience and operational efficiency.
+
+The model also maintained strong fraud detection capability with an ROC-AUC score of 0.958, demonstrating excellent ability to distinguish between fraudulent and legitimate transactions across classification thresholds.
 
 ---
 
@@ -178,118 +180,129 @@ However, the improvement in recall came at the expense of lower precision and ov
 
 | Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
 |---|---|---|---|---|---|
-| Logistic Regression | 0.9861 | 0.9895 | 0.8670 | 0.9242 | 0.9601 |
-| XGBoost | 0.9843 | 0.9692 | 0.8670 | 0.9153 | 0.9472 |
-| Tuned XGBoost | 0.9686 | 0.8136 | 0.8807 | 0.8458 | 0.9533 |
+| Logistic Regression | 0.9583 | 0.7413 | 0.8807 | 0.8050 | 0.9562 |
+| XGBoost | 0.9834 | 0.9594 | 0.8670 | 0.9108 | 0.9549 |
+| Tuned XGBoost | 0.9865 | 0.9947 | 0.8670 | 0.9265 | 0.9583 |
 
 ---
 
 # Model Interpretation
 
-Although XGBoost is generally considered a more advanced machine learning algorithm, Logistic Regression slightly outperformed XGBoost in this project. This indicates that the engineered fraud features, including transaction velocity, risk scores, behavioral indicators, and location mismatch variables, created strong linear separability within the dataset.
+The final evaluation results demonstrated that the Tuned XGBoost model outperformed both Logistic Regression and the standard XGBoost model. Hyperparameter optimization significantly improved the model’s ability to balance fraud detection performance and false positive reduction.
 
-Consequently, the simpler Logistic Regression model generalized exceptionally well while maintaining low false positive rates. The findings demonstrate that simpler models can outperform more complex ensemble methods when high-quality predictive features are available.
+Although Logistic Regression achieved slightly higher fraud recall, it produced substantially lower precision, resulting in more false positive fraud alerts. In contrast, Tuned XGBoost maintained strong fraud recall while dramatically improving precision and overall classification performance.
 
-The tuned XGBoost model slightly improved fraud recall, meaning it detected more fraudulent transactions. However, this improvement came with reduced precision and increased false positive alerts. This highlights the operational trade-off between maximizing fraud detection sensitivity and minimizing disruptions to legitimate customer transactions.
+The superior performance of Tuned XGBoost highlights the importance of ensemble learning and hyperparameter optimization in fraud detection systems. The model successfully captured complex nonlinear fraud patterns, behavioral anomalies, and feature interactions that simpler models could not fully exploit.
 
 ---
 
 # SHAP Explainability Findings
 
-SHAP (SHapley Additive exPlanations) was implemented to improve model interpretability and explain individual fraud predictions.
+SHAP (SHapley Additive exPlanations) was implemented to improve model transparency and explain individual fraud predictions generated by the Tuned XGBoost model.
 
 The SHAP analysis revealed the following major fraud drivers:
 
-1. **Transaction Velocity (1-hour and 24-hour windows)**  
-   Rapid consecutive transactions strongly increased fraud probability.
+1. **Location Mismatch**  
+   Transactions where customer location differed from transaction origin significantly increased fraud probability.
 
-2. **Internal Risk Score**  
-   Higher internal fraud risk scores significantly contributed to fraud classification.
+2. **Transaction Hour**  
+   Transactions occurring during unusual hours contributed strongly to fraud predictions.
 
-3. **IP Risk Score**  
-   Transactions originating from risky IP addresses showed increased fraud likelihood.
+3. **Transaction Velocity (24-hour window)**  
+   Rapid consecutive transactions within short time periods were strong indicators of suspicious activity.
 
-4. **Account Age**  
-   Newer accounts were more likely to be associated with fraudulent activity.
+4. **Corridor Risk**  
+   High-risk geographic transaction corridors contributed positively to fraud likelihood.
 
-5. **Location Mismatch**  
-   Transactions where the IP country differed from the registered home country contributed positively to fraud risk.
+5. **Transaction Fees and Exchange Rates**  
+   Abnormal transaction fees and suspicious exchange rate behavior increased fraud probability.
 
-SHAP waterfall plots also provided transaction-level explanations by showing how individual features increased or decreased fraud prediction scores for specific transactions.
+6. **IP Risk Score**  
+   Transactions associated with risky IP addresses were more likely to be fraudulent.
+
+7. **New Device Usage**  
+   Transactions originating from unfamiliar or untrusted devices contributed positively to fraud risk.
+
+SHAP waterfall plots also provided transaction-level explainability by showing how individual feature contributions increased or decreased the final fraud prediction score represented as **f(x)**.
 
 ---
 
 # Key Insights
 
-1. **Transaction velocity is the strongest fraud indicator**
+1. **Location mismatch is a major fraud driver**
 
-   Fraudulent users frequently perform rapid consecutive transactions within short periods.
+   Transactions where user location differed from transaction origin showed significantly higher fraud risk.
 
-2. **High IP risk scores strongly correlate with fraud**
+2. **Transaction behavior strongly predicts fraud**
 
-   Suspicious IP addresses significantly increase fraud probability.
+   Transaction timing and rapid transaction velocity contributed heavily to fraud detection.
 
-3. **Internal risk scoring systems are highly predictive**
+3. **Tuned XGBoost achieved the best overall performance**
 
-   Internal fraud risk scores contributed heavily to model decisions.
+   Hyperparameter optimization significantly improved precision, F1-score, and ROC-AUC performance.
 
-4. **Newer accounts show higher fraud tendencies**
+4. **Behavioral risk analytics improved fraud detection**
 
-   Accounts with lower account age were more likely to perform fraudulent transactions.
+   Device trust, corridor risk, exchange behavior, and transaction timing improved fraud prediction capability.
 
-5. **Location mismatch contributes to fraud risk**
+5. **SHAP explainability improved model transparency**
 
-   Transactions where IP country differed from home country showed elevated fraud likelihood.
+   SHAP clearly explained why transactions were classified as fraudulent or legitimate, improving analyst trust and regulatory explainability.
 
-6. **SHAP explainability improved model transparency**
+6. **High precision significantly reduces false positives**
 
-   SHAP plots clearly explained why specific transactions were classified as fraudulent or legitimate.
-
-7. **Simpler models can outperform complex models**
-
-   Logistic Regression achieved the best overall performance despite being less complex than XGBoost.
+   Tuned XGBoost minimized unnecessary fraud alerts and reduced operational investigation burden.
 
 ---
 
 # Business Recommendations Based on the Findings
 
-## 1. Implement Real-Time Transaction Velocity Monitoring
+## 1. Deploy Tuned XGBoost for Real-Time Fraud Monitoring
 
-Financial institutions should continuously monitor rapid transaction activity within short time windows to identify suspicious behavior early.
+The Tuned XGBoost model should be deployed as the primary fraud detection engine due to its superior accuracy, precision, and overall fraud classification capability.
 
-## 2. Strengthen IP Risk Intelligence Systems
+## 2. Monitor Behavioral Fraud Indicators Continuously
 
-Integrate external IP reputation databases and geolocation intelligence tools to improve fraud prevention capabilities.
+NovaPay should prioritize continuous monitoring of:
 
-## 3. Increase Monitoring for New Accounts
+- Transaction velocity
+- Transaction timing
+- Location mismatch
+- Device trust signals
+- Corridor risk indicators
 
-Newly created customer accounts should undergo stricter fraud screening and enhanced verification procedures.
+## 3. Strengthen Device and IP Intelligence Systems
 
-## 4. Deploy Explainable AI Dashboards
+Integrate external IP reputation systems, geolocation analytics, and device fingerprinting solutions to improve fraud detection capability further.
 
-SHAP-based explainability dashboards should be integrated into fraud monitoring systems to help analysts understand model decisions.
+## 4. Implement Explainable AI Dashboards
 
-## 5. Optimize Fraud Detection Thresholds
+SHAP-based explainability dashboards should be integrated into fraud operations workflows to support:
 
-Organizations should adjust fraud thresholds depending on operational priorities:
+- Fraud investigations
+- Regulatory audits
+- Analyst transparency
+- Decision explainability
 
-- Higher precision reduces false alarms
-- Higher recall improves fraud detection coverage
+## 5. Continuously Retrain Fraud Models
 
-## 6. Prioritize Behavioral Risk Analytics
+Fraud patterns evolve continuously. NovaPay should periodically retrain and recalibrate fraud detection models using updated transaction data and emerging fraud behavior.
 
-Behavioral indicators such as transaction frequency, account activity patterns, and location consistency should be heavily prioritized in fraud detection systems.
+## 6. Optimize Fraud Thresholds Based on Business Priorities
 
-## 7. Continuously Retrain Fraud Models
+Fraud thresholds should be adjusted depending on operational objectives:
 
-Fraud behavior evolves over time. Organizations should continuously retrain and monitor fraud detection models to maintain prediction accuracy and adapt to emerging fraud strategies.
+- Higher precision reduces customer disruption
+- Higher recall increases fraud detection coverage
 
 ---
 
 # Conclusion
 
-This project successfully developed a machine learning-based fraud detection system capable of accurately identifying fraudulent digital money transfer transactions.
+This project successfully developed a machine learning-based fraud detection framework capable of accurately identifying fraudulent digital money transfer transactions while minimizing false positive alerts.
 
-Logistic Regression achieved the best overall performance, demonstrating that carefully engineered behavioral and risk-based features created strong fraud separability within the dataset. XGBoost models provided additional nonlinear learning capability, while SHAP explainability improved model transparency by identifying the most influential fraud drivers.
+Among all evaluated models, the Tuned XGBoost model achieved the best overall performance, delivering exceptional accuracy, precision, F1-score, and ROC-AUC performance. The model effectively captured complex fraud patterns and behavioral anomalies while maintaining strong fraud detection capability.
 
-The findings demonstrated that transaction velocity, internal risk scores, IP risk indicators, account age, and location mismatch are major contributors to fraud prediction. Overall, the project provides a scalable, interpretable, and production-ready fraud detection framework suitable for real-time financial risk monitoring and fraud prevention systems.
+SHAP explainability further enhanced the system by providing transparent and interpretable fraud predictions. The analysis identified location mismatch, transaction timing, transaction velocity, corridor risk, and device intelligence as major fraud drivers.
+
+Overall, the project provides NovaPay with a scalable, explainable, and production-ready fraud detection framework capable of supporting real-time financial risk monitoring, operational efficiency, regulatory compliance, and improved customer protection.
