@@ -1,6 +1,23 @@
 # Fraud_Detection_Project
 Machine learning-based fraud detection system for digital money transfers using transaction, behavioral, device, and risk analytics. The project focuses on real-time fraud prediction, false-positive reduction, and scalable fraud monitoring for fintech platforms.
 
+## Real-Time Demo App
+
+The Streamlit deployment app uses the notebook's best-performing model (Tuned XGBoost) to score transactions in real time.
+
+### Run Locally
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m streamlit run dashboard/app.py
+```
+
+### Demo Capabilities
+
+- Real-time single transaction fraud prediction with adjustable risk threshold.
+- Batch CSV scoring with fraud probability, class prediction, and risk bands.
+- In-app validation metrics and confusion matrix for stakeholder review.
+
 
 ## Business Challenges
 
