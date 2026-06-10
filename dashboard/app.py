@@ -335,9 +335,24 @@ def explain_transaction(
 st.set_page_config(page_title="Real-Time Fraud Detection", layout="wide")
 st.title("Real-Time Fraud Detection Deployment App")
 
+# Allow the deployed app to proceed if the dataset is missing by letting the
+# user upload a CSV in the browser. This avoids forcing the dataset into the
+# repository for demos.
 if not DATA_PATH.exists():
-    st.error(f"Dataset not found at: {DATA_PATH}")
-    st.stop()
+    st.warning(f"Dataset not found at: {DATA_PATH}")
+    uploaded_dataset = st.file_uploader(
+        "Upload processed dataset CSV (nova_pay_eda_ready.csv) for this session",
+        type=["csv"],
+    )
+    if uploaded_dataset is None:
+        st.info("Upload a CSV here, or add the file to the repository at data/nova_pay_eda_ready.csv and redeploy.")
+        st.stop()
+    # persist uploaded file so the rest of the app (which expects the file path)
+    # can load it the same way as when the CSV is present in the repo.
+    DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(DATA_PATH, "wb") as f:
+        f.write(uploaded_dataset.getbuffer())
+    st.success("Dataset uploaded and saved for this session.")
 
 try:
     bundle = load_or_train_model(str(DATA_PATH))
