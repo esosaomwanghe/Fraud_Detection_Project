@@ -9,3 +9,5 @@ shap==0.52.0
 scipy==1.17.1
 joblib==1.5.3
 pillow<12
+imbalanced-learn==0.14.2
+
