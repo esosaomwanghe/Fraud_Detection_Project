@@ -1,91 +1,6 @@
 # Fraud_Detection_Project
 Machine learning-based fraud detection system for digital money transfers using transaction, behavioral, device, and risk analytics. The project focuses on real-time fraud prediction, false-positive reduction, and scalable fraud monitoring for fintech platforms.
 
-## Real-Time Demo App
-
-The Streamlit deployment app uses the notebook's best-performing model (Tuned XGBoost) to score transactions in real time.
-
-### Run Locally
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-python -m streamlit run dashboard/app.py
-```
-
-### Demo Capabilities
-
-- Real-time single transaction fraud prediction with adjustable risk threshold.
-- Batch CSV scoring with fraud probability, class prediction, and risk bands.
-- In-app validation metrics and confusion matrix for stakeholder review.
-
-## Fraud Detection API (FastAPI)
-
-`inference.py` exposes the notebook's Tuned XGBoost model and preprocessing pipeline as a REST API for real-time, programmatic fraud scoring.
-
-### Dependencies
-
-The API requires `fastapi`, `pydantic`, and `uvicorn` in addition to the core project dependencies, all listed in `requirements.txt`:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-
-### Run Locally
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-uvicorn inference:app --reload
-```
-
-This starts the API at `http://127.0.0.1:8000`. `--reload` restarts the server automatically whenever `inference.py` changes.
-
-### Making Predictions
-
-**Interactive docs (easiest):** open `http://127.0.0.1:8000/docs`, expand `POST /predict`, click "Try it out," edit the example payload, and execute.
-
-**curl:**
-
-```bash
-curl -X POST http://127.0.0.1:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{
-    "timestamp": "2022-10-03T18:40:59.468549+00:00",
-    "home_country": "us", "source_currency": "usd", "dest_currency": "cad", "channel": "atm",
-    "amount_src": 278.19, "amount_usd": 278.19, "fee": 4.25, "exchange_rate_src_to_dest": 1.351351,
-    "new_device": false, "ip_country": "us", "location_mismatch": false, "ip_risk_score": 0.123,
-    "kyc_tier": "standard", "account_age_days": 263, "device_trust_score": 0.522,
-    "chargeback_history_count": 0, "risk_score_internal": 0.223,
-    "txn_velocity_1h": 0, "txn_velocity_24h": 0, "corridor_risk": 0.0
-  }'
-```
-
-**Python:**
-
-```python
-import requests
-
-response = requests.post("http://127.0.0.1:8000/predict", json={
-    "timestamp": "2022-10-03T18:40:59.468549+00:00",
-    "home_country": "us", "source_currency": "usd", "dest_currency": "cad", "channel": "atm",
-    "amount_src": 278.19, "amount_usd": 278.19, "fee": 4.25, "exchange_rate_src_to_dest": 1.351351,
-    "new_device": False, "ip_country": "us", "location_mismatch": False, "ip_risk_score": 0.123,
-    "kyc_tier": "standard", "account_age_days": 263, "device_trust_score": 0.522,
-    "chargeback_history_count": 0, "risk_score_internal": 0.223,
-    "txn_velocity_1h": 0, "txn_velocity_24h": 0, "corridor_risk": 0.0
-})
-print(response.json())
-```
-
-Response:
-
-```json
-{"is_fraud": 0, "label": "Legit", "fraud_probability": 0.00726733822375536}
-```
-
-All fields shown above are required on every request, matching the `Transaction` model defined in `inference.py`. The API derives `transaction_hour`, `log_amount_usd`, `log_fee`, and `log_exchange_rate` internally from `timestamp`/`amount_usd`/`fee`/`exchange_rate_src_to_dest` before running the notebook's `ColumnTransformer` preprocessor and the tuned XGBoost model.
-
-
 ## Business Challenges
 
 ### 1. Increasing Sophistication of Fraud Attacks
@@ -174,8 +89,6 @@ The objective of this project is to develop a machine learning-based fraud detec
 The solution will replace the current static rules-based approach with a scalable, intelligent, and adaptive fraud detection framework.
 
 
-
-
 # Models Used for the Fraud Detection Project
 
 The following machine learning models were implemented and evaluated for fraud detection:
@@ -193,7 +106,7 @@ The following machine learning models were implemented and evaluated for fraud d
 3. **Hyperparameter-Tuned XGBoost**
 
    - Optimized version of XGBoost using hyperparameter tuning techniques.
-   - Improved fraud recall performance.
+   - Improved precision, F1-score, and ROC-AUC performance.
 
 4. **SHAP (SHapley Additive Explanations)**
 
@@ -208,15 +121,15 @@ The following machine learning models were implemented and evaluated for fraud d
 
 | Metric | Score |
 |---|---|
-| Accuracy | 95.83% |
-| Precision | 0.7413 |
-| Recall | 0.8807 |
-| F1-Score | 0.8050 |
-| ROC-AUC | 0.9562 |
+| Accuracy | 95.33% |
+| Precision | 0.7050 |
+| Recall | 0.8991 |
+| F1-Score | 0.7903 |
+| ROC-AUC | 0.9638 |
 
 ### Discussion
 
-The Logistic Regression model achieved strong fraud detection capability with the highest recall score alongside Tuned XGBoost. This indicates that the model was highly effective at identifying fraudulent transactions. However, the lower precision score suggests that the model generated a higher number of false positive alerts compared to the XGBoost-based models.
+The Logistic Regression model achieved strong fraud detection capability with the highest recall score among the evaluated models. This indicates that the model was highly effective at identifying fraudulent transactions. However, the lower precision score suggests that the model generated a higher number of false positive alerts compared to the XGBoost-based models.
 
 Despite being a simpler linear model, Logistic Regression demonstrated excellent separability between fraudulent and legitimate transactions due to the strength of the engineered behavioral and risk-based fraud features.
 
@@ -226,11 +139,11 @@ Despite being a simpler linear model, Logistic Regression demonstrated excellent
 
 | Metric | Score |
 |---|---|
-| Accuracy | 98.34% |
-| Precision | 0.9594 |
+| Accuracy | 98.38% |
+| Precision | 0.9643 |
 | Recall | 0.8670 |
-| F1-Score | 0.9108 |
-| ROC-AUC | 0.9549 |
+| F1-Score | 0.9130 |
+| ROC-AUC | 0.9602 |
 
 ### Discussion
 
@@ -244,11 +157,11 @@ Compared to Logistic Regression, XGBoost significantly reduced false positive al
 
 | Metric | Score |
 |---|---|
-| Accuracy | 98.65% |
-| Precision | 0.9947 |
+| Accuracy | 98.70% |
+| Precision | 1.0000 |
 | Recall | 0.8670 |
-| F1-Score | 0.9265 |
-| ROC-AUC | 0.9583 |
+| F1-Score | 0.9287 |
+| ROC-AUC | 0.9698 |
 
 ### Discussion
 
@@ -256,7 +169,7 @@ The Tuned XGBoost model achieved the best overall performance among all evaluate
 
 The extremely high precision score demonstrates that the model generated very few false positive alerts, making it highly suitable for real-world fraud monitoring environments where unnecessary transaction blocking can negatively affect customer experience and operational efficiency.
 
-The model also maintained strong fraud detection capability with an ROC-AUC score of 0.958, demonstrating excellent ability to distinguish between fraudulent and legitimate transactions across classification thresholds.
+The model also maintained strong fraud detection capability with an ROC-AUC score of 0.970, demonstrating excellent ability to distinguish between fraudulent and legitimate transactions across classification thresholds.
 
 ---
 
@@ -264,9 +177,9 @@ The model also maintained strong fraud detection capability with an ROC-AUC scor
 
 | Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
 |---|---|---|---|---|---|
-| Logistic Regression | 0.9583 | 0.7413 | 0.8807 | 0.8050 | 0.9562 |
-| XGBoost | 0.9834 | 0.9594 | 0.8670 | 0.9108 | 0.9549 |
-| Tuned XGBoost | 0.9865 | 0.9947 | 0.8670 | 0.9265 | 0.9583 |
+| Logistic Regression | 0.9533 | 0.7050 | 0.8991 | 0.7903 | 0.9638 |
+| XGBoost | 0.9838 | 0.9643 | 0.8670 | 0.9130 | 0.9602 |
+| Tuned XGBoost | 0.9870 | 1.0000 | 0.8670 | 0.9287 | 0.9698 |
 
 ---
 
@@ -323,7 +236,7 @@ SHAP waterfall plots also provided transaction-level explainability by showing h
 
 3. **Tuned XGBoost achieved the best overall performance**
 
-   Hyperparameter optimization significantly improved precision, F1-score, and ROC-AUC performance.
+   Hyperparameter optimization significantly improved precision, F1-score, and ROC-AUC performance, while Logistic Regression retained the highest fraud recall.
 
 4. **Behavioral risk analytics improved fraud detection**
 
@@ -335,7 +248,7 @@ SHAP waterfall plots also provided transaction-level explainability by showing h
 
 6. **High precision significantly reduces false positives**
 
-   Tuned XGBoost minimized unnecessary fraud alerts and reduced operational investigation burden.
+   Tuned XGBoost minimized unnecessary fraud alerts and reduced operational investigation burden, with a precision score of 1.0000 on the held-out test split.
 
 ---
 
@@ -344,6 +257,7 @@ SHAP waterfall plots also provided transaction-level explainability by showing h
 ## 1. Deploy Tuned XGBoost for Real-Time Fraud Monitoring
 
 The Tuned XGBoost model should be deployed as the primary fraud detection engine due to its superior accuracy, precision, and overall fraud classification capability.
+Fraud probability calibration and threshold tuning should be applied to balance false positives and missed fraud according to business risk tolerance.
 
 ## 2. Monitor Behavioral Fraud Indicators Continuously
 
@@ -379,14 +293,60 @@ Fraud thresholds should be adjusted depending on operational objectives:
 - Higher precision reduces customer disruption
 - Higher recall increases fraud detection coverage
 
+Thresholds should be reviewed regularly with live production feedback to account for data drift and emerging fraud patterns.
+
 ---
 
 # Conclusion
 
 This project successfully developed a machine learning-based fraud detection framework capable of accurately identifying fraudulent digital money transfer transactions while minimizing false positive alerts.
 
-Among all evaluated models, the Tuned XGBoost model achieved the best overall performance, delivering exceptional accuracy, precision, F1-score, and ROC-AUC performance. The model effectively captured complex fraud patterns and behavioral anomalies while maintaining strong fraud detection capability.
+Among all evaluated models, the Tuned XGBoost model achieved the best overall performance, delivering exceptional accuracy, precision, F1-score, and ROC-AUC performance. Logistic Regression retained the highest recall, highlighting the expected precision-recall tradeoff in fraud operations. The Tuned XGBoost model effectively captured complex fraud patterns and behavioral anomalies while maintaining strong fraud detection capability.
 
 SHAP explainability further enhanced the system by providing transparent and interpretable fraud predictions. The analysis identified location mismatch, transaction timing, transaction velocity, corridor risk, and device intelligence as major fraud drivers.
 
 Overall, the project provides NovaPay with a scalable, explainable, and production-ready fraud detection framework capable of supporting real-time financial risk monitoring, operational efficiency, regulatory compliance, and improved customer protection.
+
+
+## Real-Time Demo App
+
+The Streamlit deployment app uses the notebook's best-performing model (Tuned XGBoost) to score transactions in real time.
+
+### Run Locally
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m streamlit run dashboard/app.py
+```
+
+### Demo Capabilities
+
+- Real-time single transaction fraud prediction with adjustable risk threshold.
+- Batch CSV scoring with fraud probability, class prediction, and risk bands.
+- In-app validation metrics and confusion matrix for stakeholder review.
+
+## Fraud Detection API (FastAPI)
+
+`inference.py` exposes the notebook's Tuned XGBoost model and preprocessing pipeline as a REST API for real-time, programmatic fraud scoring.
+
+### Dependencies
+
+The API requires `fastapi`, `pydantic`, and `uvicorn` in addition to the core project dependencies, all listed in `requirements.txt`:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+### Run Locally
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+uvicorn inference:app --reload
+```
+
+This starts the API at `http://127.0.0.1:8000`. `--reload` restarts the server automatically whenever `inference.py` changes.
+
+### Making Predictions
+
+**Interactive docs (easiest):** open `http://127.0.0.1:8000/docs`, expand `POST /predict`, click "Try it out," edit the example payload, and execute.
