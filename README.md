@@ -18,6 +18,73 @@ python -m streamlit run dashboard/app.py
 - Batch CSV scoring with fraud probability, class prediction, and risk bands.
 - In-app validation metrics and confusion matrix for stakeholder review.
 
+## Fraud Detection API (FastAPI)
+
+`inference.py` exposes the notebook's Tuned XGBoost model and preprocessing pipeline as a REST API for real-time, programmatic fraud scoring.
+
+### Dependencies
+
+The API requires `fastapi`, `pydantic`, and `uvicorn` in addition to the core project dependencies, all listed in `requirements.txt`:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+### Run Locally
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+uvicorn inference:app --reload
+```
+
+This starts the API at `http://127.0.0.1:8000`. `--reload` restarts the server automatically whenever `inference.py` changes.
+
+### Making Predictions
+
+**Interactive docs (easiest):** open `http://127.0.0.1:8000/docs`, expand `POST /predict`, click "Try it out," edit the example payload, and execute.
+
+**curl:**
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "timestamp": "2022-10-03T18:40:59.468549+00:00",
+    "home_country": "us", "source_currency": "usd", "dest_currency": "cad", "channel": "atm",
+    "amount_src": 278.19, "amount_usd": 278.19, "fee": 4.25, "exchange_rate_src_to_dest": 1.351351,
+    "new_device": false, "ip_country": "us", "location_mismatch": false, "ip_risk_score": 0.123,
+    "kyc_tier": "standard", "account_age_days": 263, "device_trust_score": 0.522,
+    "chargeback_history_count": 0, "risk_score_internal": 0.223,
+    "txn_velocity_1h": 0, "txn_velocity_24h": 0, "corridor_risk": 0.0
+  }'
+```
+
+**Python:**
+
+```python
+import requests
+
+response = requests.post("http://127.0.0.1:8000/predict", json={
+    "timestamp": "2022-10-03T18:40:59.468549+00:00",
+    "home_country": "us", "source_currency": "usd", "dest_currency": "cad", "channel": "atm",
+    "amount_src": 278.19, "amount_usd": 278.19, "fee": 4.25, "exchange_rate_src_to_dest": 1.351351,
+    "new_device": False, "ip_country": "us", "location_mismatch": False, "ip_risk_score": 0.123,
+    "kyc_tier": "standard", "account_age_days": 263, "device_trust_score": 0.522,
+    "chargeback_history_count": 0, "risk_score_internal": 0.223,
+    "txn_velocity_1h": 0, "txn_velocity_24h": 0, "corridor_risk": 0.0
+})
+print(response.json())
+```
+
+Response:
+
+```json
+{"is_fraud": 0, "label": "Legit", "fraud_probability": 0.00726733822375536}
+```
+
+All fields shown above are required on every request, matching the `Transaction` model defined in `inference.py`. The API derives `transaction_hour`, `log_amount_usd`, `log_fee`, and `log_exchange_rate` internally from `timestamp`/`amount_usd`/`fee`/`exchange_rate_src_to_dest` before running the notebook's `ColumnTransformer` preprocessor and the tuned XGBoost model.
+
 
 ## Business Challenges
 
